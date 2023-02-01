@@ -1,0 +1,12 @@
+% docker, container
+
+$ stopped_container: docker container ps --- --column 3 --header-lines 1 --delimiter '\s\s+'
+
+# Remove dangling images (without tag)
+docker image ls --filter dangling=true --quiet | xargs docker image rm
+
+# Remove stopped containers
+docker container ps --all --quiet | xargs docker container rm
+
+# Get IP address of container
+docker container inspect --format '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <stopped_container>
