@@ -14,3 +14,6 @@ git pull --rebase
 
 # Interactive rebase
 git rebase --interactive <commit_sha>
+
+# Remove orphaned local branches
+git remote prune origin
