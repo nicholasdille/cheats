@@ -1,0 +1,6 @@
+% hetzner, cloud, hcloud
+
+$ server: hcloud server list --- --column 1 --header-lines 1 --delimiter '\s+'
+
+# Remove server
+hcloud server delete <server>

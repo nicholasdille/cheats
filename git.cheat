@@ -1,0 +1,16 @@
+% git
+
+$ branch: git branch
+$ commit_sha: git log --oneline --- --column 1 --delimiter '\s+'
+
+# Diff with origin
+git diff <branch> origin/<branch>
+
+# Show log with diff
+git log --patch
+
+# Pull with rebase
+git pull --rebase
+
+# Interactive rebase
+git rebase --interactive <commit_sha>
