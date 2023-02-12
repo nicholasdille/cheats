@@ -17,3 +17,6 @@ git rebase --interactive <commit_sha>
 
 # Remove orphaned local branches
 git remote prune origin
+
+# Revert branch to older commit
+git reset --hard <commit_sha>
