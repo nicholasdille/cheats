@@ -1,6 +1,7 @@
 % git
 
 $ branch: git branch
+$ default_branch: git symbolic-ref refs/remotes/origin/HEAD --- --column 4 --delimiter '\/'
 $ commit_sha: git log --oneline --- --column 1 --delimiter '\s+'
 
 # Diff with origin
@@ -20,3 +21,6 @@ git remote prune origin
 
 # Revert branch to older commit
 git reset --hard <commit_sha>
+
+# Emulate merge
+git merge-tree $(git merge-base <default_branch> <branch>) <default_branch> <branch>
