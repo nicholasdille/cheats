@@ -1,0 +1,83 @@
+% tracee
+
+# Trace DNS requests and responses
+# https://mobile.twitter.com/rafaeldtinoco/status/1625725547522273280
+docker run --name tracee --rm -t \
+    --pid=host --cgroupns=host --privileged \
+    -v /etc/os-release:/etc/os-release-host \
+    -v /boot/config-$(uname -r):/boot/config-$(uname -r) \
+    -e LIBEBPFGO_OSRELEASE_FILE=/etc/os-release-host \
+    aquasec/tracee:0.11.1 trace \
+        --trace event=net_packet_dns_request,net_packet_dns_response \
+        --output format:json \
+| jq -c
+
+# Capture all HTTP packets as PCAP
+# https://mobile.twitter.com/rafaeldtinoco/status/1625727483700998144
+docker run --name tracee --rm -t \
+    --pid=host --cgroupns=host --privileged \
+    -v /etc/os-release:/etc/os-release-host \
+    -v /boot/config-$(uname -r):/boot/config-$(uname -r) \
+    -e LIBEBPFGO_OSRELEASE_FILE=/etc/os-release-host \
+    aquasec/tracee:0.11.1 trace \
+        --output none \
+        --trace event=net_packet_http \
+        --capture network \
+        --capture pcap:single \
+        --capture pcap-options:filtered \
+        --capture pcap-snaplen:max
+
+# Trace all TCP, UDP, ICMP(v6) from all processes except node, ssh, sshd, systemd-resolv, avahi-daemon and capture all traefik into PCAP files by container, process and command
+# https://mobile.twitter.com/rafaeldtinoco/status/1625730367993921539
+docker run --name tracee --rm -t \
+    --pid=host --cgroupns=host --privileged \
+    -v /etc/os-release:/etc/os-release-host \
+    -v /boot/config-$(uname -r):/boot/config-$(uname -r) \
+    -e LIBEBPFGO_OSRELEASE_FILE=/etc/os-release-host \
+    aquasec/tracee:0.11.1 trace \
+        --output format:json \
+        --trace comm!=node,ssh,sshd,systemd-resolv,avahi-daemon \
+        --trace event=net_packet_tcp,net_packet_icmp,net_packet_icmpv6 \
+        --capture network \
+        --capture pcap:container,process,command \
+        --capture pcap-options:filtered \
+        --capture pcap-snaplen:max \
+| jq -c
+
+$ running_container: docker container ps --- --column 1 --header-lines 1 --delimiter '\s\s+'
+
+# Trace all network events/packets from all processes in a specific container and capture all traffic from the same container as PCAP
+# https://mobile.twitter.com/rafaeldtinoco/status/1625961492506898432
+docker run --name tracee --rm -t \
+    --pid=host --cgroupns=host --privileged \
+    -v /etc/os-release:/etc/os-release-host \
+    -v /boot/config-$(uname -r):/boot/config-$(uname -r) \
+    -e LIBEBPFGO_OSRELEASE_FILE=/etc/os-release-host \
+    aquasec/tracee:0.11.1 trace \
+        --output format:json \
+        --containers \
+        --trace container=<running_container> \
+        --trace event=net_packet_ipv4,net_packet_ipv6,net_packet_tcp,net_packet_icmp,net_packet_icmpv6 \
+        --capture network \
+        --capture pcap:container \
+        --capture pcap-options:filtered \
+        --capture pcap-snaplen:headers \
+| jq -c
+
+# Trace all network events/packets from all processes from a specific container and capture all traffic as PCAP
+# https://mobile.twitter.com/rafaeldtinoco/status/1625969019701395469
+docker run --name tracee --rm -t \
+    --pid=host --cgroupns=host --privileged \
+    -v /etc/os-release:/etc/os-release-host \
+    -v /boot/config-$(uname -r):/boot/config-$(uname -r) \
+    -e LIBEBPFGO_OSRELEASE_FILE=/etc/os-release-host \
+    aquasec/tracee:0.11.1 trace \
+        --output format:json \
+        --containers \
+        --trace container=<running_container> \
+        --trace event=net_packet_ipv4,net_packet_ipv6,net_packet_tcp,net_packet_icmp,net_packet_icmpv6,net_packet_dns \
+        --capture network \
+        --capture pcap:command \
+        --capture pcap-options:filtered \
+        --capture pcap-snaplen:92b \
+| jq -c
