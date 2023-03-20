@@ -1,8 +1,11 @@
 % git
 
 $ branch: git branch
+$ tag: git tag
+$ ref: git show-ref | cut -d' ' -f2 | grep -v "/remotes/"
 $ default_branch: git symbolic-ref refs/remotes/origin/HEAD --- --column 4 --delimiter '\/'
 $ commit_sha: git log --oneline --- --column 1 --delimiter '\s+'
+$ file: git ls-tree -r --name-only <ref>
 
 # Diff with origin
 git diff <branch> origin/<branch>
@@ -24,3 +27,9 @@ git reset --hard <commit_sha>
 
 # Emulate merge
 git merge-tree $(git merge-base <default_branch> <branch>) <default_branch> <branch>
+
+# Fetch files from tag
+git checkout <ref> -- <file>
+
+# Show file from any branch without checkout
+git show <ref>:<file>
