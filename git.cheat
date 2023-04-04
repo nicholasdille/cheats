@@ -33,3 +33,6 @@ git checkout <ref> -- <file>
 
 # Show file from any branch without checkout
 git show <ref>:<file>
+
+# Revert to older commit
+git reset --hard <commit_sha>
